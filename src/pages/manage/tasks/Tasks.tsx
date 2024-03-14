@@ -1,5 +1,12 @@
 import { Button, Heading, HStack, VStack } from "@hope-ui/solid"
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js"
+import {
+  Accessor,
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  Show,
+} from "solid-js"
 import { Paginator } from "~/components"
 import { useFetch, useT } from "~/hooks"
 import { PEmptyResp, PResp, TaskInfo } from "~/types"
@@ -17,6 +24,7 @@ export const Tasks = (props: TasksProps) => {
     (): PResp<TaskInfo[]> => r.get(`/admin/task/${props.type}/${props.done}`),
   )
   const [tasks, setTasks] = createSignal<TaskInfo[]>([])
+  const tasksLength = createMemo(() => tasks().length)
   const refresh = async () => {
     const resp = await get()
     handleResp(resp, (data) =>
@@ -53,7 +61,9 @@ export const Tasks = (props: TasksProps) => {
   })
   return (
     <VStack w="$full" alignItems="start" spacing="$2">
-      <Heading size="lg">{t(`tasks.${props.done}`)}</Heading>
+      <Heading size="lg">
+        {t(`tasks.${props.done}`)}({tasksLength})
+      </Heading>
       <Show when={props.done === "done"}>
         <HStack gap="$2" flexWrap="wrap">
           <Button colorScheme="accent" loading={loading()} onClick={refresh}>
